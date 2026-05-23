@@ -13,6 +13,10 @@
 
 ---
 
+<p align="center">
+  <a href="https://linnps.github.io/ml-01-linear-regression/"><img src="https://img.shields.io/badge/View_Live_Dashboard-0E2841?style=for-the-badge&amp;logo=githubpages&amp;logoColor=white" alt="View live dashboard"></a>
+</p>
+
 ## At a glance
 
 > Train three linear models on a synthetic dataset whose **true coefficients are known**, then ask the question that holdout RMSE alone can't answer:
