@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML 01 · Linear Regression — Dashboard</title>
+<style>
+  :root{
+    --navy:#0E2841; --navy2:#14385B; --navy3:#1C4A75;
+    --orange:#ED7D31; --orange2:#F4A26B;
+    --blue:#9DC3E6; --bg:#EEF1F4; --card:#FFFFFF;
+    --text:#1A2733; --muted:#6B7B8C; --line:#E2E7EC;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+  /* ---- sidebar ---- */
+  .sidebar{width:210px;flex-shrink:0;background:var(--navy);color:#fff;
+           display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+  .brand{padding:22px 20px 18px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .brand .n{font-size:12px;letter-spacing:2px;color:var(--orange);font-weight:700}
+  .brand .t{font-size:17px;font-weight:700;margin-top:4px;line-height:1.25}
+  nav{padding:10px 0;flex:1}
+  nav a{display:flex;align-items:center;gap:10px;padding:13px 20px;color:#C5D2DE;
+        cursor:pointer;font-size:14px;font-weight:600;border-left:3px solid transparent;
+        user-select:none;transition:background .12s}
+  nav a:hover{background:rgba(255,255,255,.05);color:#fff}
+  nav a.active{background:var(--orange);color:#fff;border-left-color:#fff}
+  nav a .ic{font-size:16px;width:18px;text-align:center}
+  .side-foot{padding:16px 20px;font-size:11px;color:#7E93A8;border-top:1px solid rgba(255,255,255,.08)}
+  .side-foot a{color:var(--blue);text-decoration:none}
+  /* ---- main ---- */
+  .main{flex:1;padding:26px 30px 50px 30px;max-width:1180px}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;
+          border-bottom:2px solid var(--line);padding-bottom:16px;margin-bottom:22px}
+  .topbar h1{font-size:25px;font-weight:800;color:var(--navy)}
+  .topbar .sub{font-size:13px;color:var(--muted);margin-top:4px}
+  .topbar .meta{font-size:12px;color:var(--muted);text-align:right;line-height:1.7}
+  .topbar .meta b{color:var(--navy)}
+  /* ---- panels ---- */
+  .panel{display:none;animation:fade .2s ease}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .panel h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);
+            margin:26px 0 12px 0;font-weight:700}
+  .panel h2:first-child{margin-top:0}
+  /* ---- KPI cards ---- */
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .kpi{border-radius:8px;padding:18px 16px;text-align:center;color:#fff;
+       box-shadow:0 1px 3px rgba(14,40,65,.12)}
+  .kpi .v{font-size:30px;font-weight:800;line-height:1}
+  .kpi .l{font-size:12.5px;font-weight:600;margin-top:8px;opacity:.92}
+  .kpi .s{font-size:11px;margin-top:5px;opacity:.8}
+  .kpi.navy{background:var(--navy)} .kpi.orange{background:var(--orange)}
+  .kpi.blue{background:var(--blue);color:var(--navy)}
+  /* ---- cards ---- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;
+        margin-top:14px;box-shadow:0 1px 2px rgba(14,40,65,.05)}
+  .card h3{font-size:15px;color:var(--navy);font-weight:700}
+  .card .cap{font-size:12.5px;color:var(--muted);margin:4px 0 10px 0}
+  .card img{width:100%;border:1px solid var(--line);border-radius:5px;margin-top:6px}
+  /* ---- table ---- */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  th,td{padding:9px 10px;text-align:center;border-bottom:1px solid var(--line)}
+  th{background:var(--navy);color:#fff;font-weight:600;font-size:12.5px}
+  th:first-child,td:first-child{text-align:left}
+  tbody tr:nth-child(even){background:#F6F8FA}
+  .pill{display:inline-block;padding:3px 9px;border-radius:11px;font-weight:700;font-size:12.5px;color:#fff}
+  .p-navy{background:var(--navy)} .p-orange{background:var(--orange)}
+  .p-blue{background:var(--blue);color:var(--navy)} .p-gray{background:#9AA8B5}
+  .legend{font-size:12px;color:var(--muted);margin-top:9px}
+  .note{background:#FBF3EC;border-left:3px solid var(--orange);padding:11px 14px;border-radius:0 6px 6px 0;
+        font-size:13.5px;line-height:1.6;margin-top:14px}
+  pre{background:var(--navy);color:#E7EEF5;padding:14px 16px;border-radius:7px;overflow:auto;
+      font-size:12.5px;line-height:1.6;margin-top:10px;font-family:"SF Mono",Consolas,monospace}
+  pre .c{color:#7E9CB8}
+  code{background:#E7ECF1;padding:1px 5px;border-radius:3px;font-size:12.5px;
+       font-family:"SF Mono",Consolas,monospace}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}
+    .sidebar{width:64px}.brand .t,nav a span.tx,.side-foot{display:none}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand"><div class="n">ML · 01</div><div class="t">Linear Regression</div></div>
+  <nav>
+    <a data-p="overview" class="active"><span class="ic">▣</span><span class="tx">Overview</span></a>
+    <a data-p="charts"><span class="ic">▤</span><span class="tx">Charts</span></a>
+    <a data-p="validation"><span class="ic">✓</span><span class="tx">Validation</span></a>
+    <a data-p="reproduce"><span class="ic">⚙</span><span class="tx">Reproduce</span></a>
+  </nav>
+  <div class="side-foot">Part of a 10-project ML portfolio<br><a href="https://github.com/linnps/ml-01-linear-regression">View on GitHub →</a></div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1>Linear Regression — From Truth to Estimate</h1>
+      <div class="sub">OLS · Ridge · Lasso on synthetic data with known ground-truth coefficients</div>
+    </div>
+    <div class="meta">DATASET: <b>1,000 samples · 10 features</b><br>Synthetic · deterministic (<b>seed 42</b>)<br>75 / 25 train-test split</div>
+  </div>
+
+  <!-- ===================== OVERVIEW ===================== -->
+  <section class="panel active" id="overview">
+    <div class="kpis">
+      <div class="kpi blue"><div class="v">0.992</div><div class="l">Best test RMSE</div><div class="s">Lasso (α = 0.1)</div></div>
+      <div class="kpi navy"><div class="v">0.829</div><div class="l">Best test R²</div><div class="s">Lasso (α = 0.1)</div></div>
+      <div class="kpi orange"><div class="v">0.273</div><div class="l">Closest β recovery</div><div class="s">Ridge · ‖β̂ − β_true‖₂</div></div>
+    </div>
+
+    <h2>Model scorecard</h2>
+    <div class="card">
+      <table>
+        <thead><tr><th>Model</th><th>Test RMSE</th><th>Test MAE</th><th>Test R²</th><th>‖β̂ − β_true‖₂</th></tr></thead>
+        <tbody>
+          <tr><td><b>OLS</b></td><td><span class="pill p-gray">1.001</span></td><td><span class="pill p-gray">0.792</span></td><td><span class="pill p-gray">0.826</span></td><td><span class="pill p-gray">0.274</span></td></tr>
+          <tr><td><b>Ridge</b> <small>α=1.0</small></td><td><span class="pill p-gray">1.000</span></td><td><span class="pill p-navy">0.792</span></td><td><span class="pill p-gray">0.826</span></td><td><span class="pill p-navy">0.273</span></td></tr>
+          <tr><td><b>Lasso</b> <small>α=0.1</small></td><td><span class="pill p-navy">0.992</span></td><td><span class="pill p-gray">0.797</span></td><td><span class="pill p-navy">0.829</span></td><td><span class="pill p-orange">0.537</span></td></tr>
+        </tbody>
+      </table>
+      <div class="legend">● navy = best in column &nbsp; ● orange = notably worse &nbsp; ● gray = neutral &nbsp;·&nbsp; values from <code>results/metrics.json</code></div>
+    </div>
+
+    <div class="note"><b>Headline finding:</b> with this much training data, all three models predict equally well — but they disagree on <i>how</i>. Ridge stays closest to the true coefficients; Lasso wins test fit by deliberately zeroing the small ones. Holdout RMSE alone can't tell them apart — coefficient recovery against the known β can.</div>
+  </section>
+
+  <!-- ===================== CHARTS ===================== -->
+  <section class="panel" id="charts">
+    <h2>Visual diagnostics</h2>
+    <div class="card"><h3>1 · Test-set performance across models</h3><div class="cap">With enough data, regularized and unregularized regression converge to nearly the same prediction quality.</div><img src="assets/01_metrics.png" alt="metrics"></div>
+    <div class="card"><h3>2 · Coefficient recovery — the synthetic-data superpower</h3><div class="cap">Gray bars = true β. Lasso cleanly zeros the 5 redundant features; OLS/Ridge nearly overlap.</div><img src="assets/02_coef_recovery.png" alt="coefficient recovery"></div>
+    <div class="grid2">
+      <div class="card"><h3>3 · Predicted vs. actual</h3><div class="cap">Points hug the y = x line across all three models.</div><img src="assets/03_pred_vs_actual.png" alt="predicted vs actual"></div>
+      <div class="card"><h3>4 · Residual diagnostics</h3><div class="cap">Structureless cloud around zero — no systematic error.</div><img src="assets/04_residuals.png" alt="residuals"></div>
+    </div>
+    <div class="card"><h3>5 · Lasso regularization path</h3><div class="cap">Redundant-feature coefficients (red) die first as α grows; informative ones (blue) persist.</div><img src="assets/05_lasso_path.png" alt="lasso path"></div>
+  </section>
+
+  <!-- ===================== VALIDATION ===================== -->
+  <section class="panel" id="validation">
+    <h2>Dual-axis validation</h2>
+    <div class="card">
+      <h3>Axis 1 — predictive accuracy (held-out test set)</h3>
+      <div class="cap">All metrics on the 250-row test set the models never saw.</div>
+      <table>
+        <thead><tr><th>Metric</th><th>What it measures</th><th>Reads as</th></tr></thead>
+        <tbody>
+          <tr><td><b>RMSE</b></td><td>√mean squared error</td><td>≈ noise floor 1.0 → at the irreducible limit</td></tr>
+          <tr><td><b>MAE</b></td><td>mean absolute error</td><td>typical error, robust to outliers</td></tr>
+          <tr><td><b>R²</b></td><td>variance explained</td><td>~0.83 ceiling, capped by injected noise</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Axis 2 — coefficient recovery (only possible with synthetic data)</h3>
+      <div class="cap">Did the model recover the true mechanism, not just predict well? Measured as ‖β̂ − β_true‖₂.</div>
+      <div class="note" style="margin-top:8px">All three models land within <b>1%</b> on RMSE, yet Lasso's β estimate is <b>2× further</b> from the truth than Ridge's (0.537 vs 0.273). Two models can predict identically and <i>understand</i> the data very differently.</div>
+    </div>
+    <h2>Full results</h2>
+    <div class="card">
+      <table>
+        <thead><tr><th>Model</th><th>Test RMSE</th><th>Test MAE</th><th>Test R²</th><th>‖β̂ − β_true‖₂</th></tr></thead>
+        <tbody>
+          <tr><td>OLS</td><td>1.0013</td><td>0.7921</td><td>0.8261</td><td>0.2744</td></tr>
+          <tr><td>Ridge (α=1.0)</td><td>1.0004</td><td>0.7920</td><td>0.8264</td><td><b>0.2730</b></td></tr>
+          <tr><td>Lasso (α=0.1)</td><td><b>0.9919</b></td><td>0.7968</td><td><b>0.8293</b></td><td>0.5368</td></tr>
+        </tbody>
+      </table>
+      <div class="legend">Determinism: a single <code>seed = 42</code> drives features, coefficients, noise, and the split. <b>Seed caveat:</b> "Lasso wins RMSE" is seed-dependent; the coefficient-recovery ordering (Ridge &lt; OLS &lt; Lasso) is the robust finding.</div>
+    </div>
+  </section>
+
+  <!-- ===================== REPRODUCE ===================== -->
+  <section class="panel" id="reproduce">
+    <h2>Run it yourself</h2>
+    <div class="card">
+      <pre><span class="c"># 1. environment</span>
+python3 -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install -r requirements.txt
+
+<span class="c"># 2. generate the synthetic dataset (deterministic)</span>
+python generate_data.py
+
+<span class="c"># 3. train, evaluate, render the dashboard figures</span>
+python train.py</pre>
+      <div class="cap" style="margin-top:10px">Produces the five PNGs in <code>assets/</code> and the metric summary in <code>results/metrics.json</code>.</div>
+    </div>
+    <h2>Tweak the difficulty</h2>
+    <div class="card">
+      <pre>DataConfig(
+    n_samples=1000,
+    n_informative=5,   <span class="c"># features that actually matter</span>
+    n_redundant=5,     <span class="c"># pure noise — Lasso should drop these</span>
+    correlation=0.6,   <span class="c"># high values hurt OLS, help Ridge</span>
+    noise_std=1.0,
+    seed=42,
+)</pre>
+      <div class="cap" style="margin-top:10px">Try <code>correlation=0.95</code> or <code>n_samples=80</code> to see the regularizers visibly out-perform OLS.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+  document.querySelectorAll('.sidebar nav a').forEach(function(a){
+    a.addEventListener('click',function(){
+      document.querySelectorAll('.sidebar nav a').forEach(function(x){x.classList.remove('active')});
+      document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+      a.classList.add('active');
+      document.getElementById(a.dataset.p).classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+</script>
+</body>
+</html>
