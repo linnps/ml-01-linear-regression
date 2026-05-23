@@ -18,31 +18,12 @@
 > Train three linear models on a synthetic dataset whose **true coefficients are known**, then ask the question that holdout RMSE alone can't answer:
 > *did the model actually recover the truth?*
 
-<table>
-<tr>
-<td align="center" width="33%">
-<sub>Best test RMSE</sub><br>
-<b style="font-size:1.6em; color:#3B6EA8;">0.992</b><br>
-<sub>Lasso (α = 0.1)</sub>
-</td>
-<td align="center" width="33%">
-<sub>Best test R²</sub><br>
-<b style="font-size:1.6em; color:#3B6EA8;">0.829</b><br>
-<sub>Lasso (α = 0.1)</sub>
-</td>
-<td align="center" width="33%">
-<sub>Closest β recovery</sub><br>
-<b style="font-size:1.6em; color:#C04040;">0.273</b><br>
-<sub>‖β̂ − β_true‖₂ &nbsp; (Ridge)</sub>
-</td>
-</tr>
-</table>
-
-| Model | RMSE | MAE | R² | ‖β̂ − β_true‖₂ |
-|---|---:|---:|---:|---:|
-| OLS | 1.001 | 0.792 | 0.826 | 0.274 |
-| **Ridge (α = 1.0)** | **1.000** | **0.792** | **0.826** | **0.273** ◀ best β recovery |
-| **Lasso (α = 0.1)** | **0.992** | 0.797 | **0.829** | 0.537 ◀ best test fit |
+<p align="center">
+  <img src="https://img.shields.io/badge/Best_test_RMSE-0.992-3B6EA8?style=for-the-badge" alt="Best test RMSE 0.992">
+  <img src="https://img.shields.io/badge/Best_test_R%C2%B2-0.829-3B6EA8?style=for-the-badge" alt="Best test R2 0.829">
+  <img src="https://img.shields.io/badge/Closest_%CE%B2_recovery-0.273-C04040?style=for-the-badge" alt="Closest beta recovery 0.273">
+</p>
+<p align="center"><sub>RMSE &amp; R² &rarr; <b>Lasso</b> (α = 0.1)&nbsp;·&nbsp;β recovery &rarr; <b>Ridge</b> (α = 1.0), ‖β̂ − β_true‖₂&nbsp;·&nbsp;noise-floor RMSE = 1.0</sub></p>
 
 <sub>**Headline finding:** with this much training data, all three models predict equally well — but they disagree on *how* they got there. Ridge stays closest to the true coefficients; Lasso wins on test fit by deliberately throwing away small ones.</sub>
 
@@ -94,6 +75,35 @@ The dataset is fully synthetic, sampled from a known linear model so that the *t
 ---
 
 ## Dashboard
+
+### Model scorecard
+
+<table>
+<tr><th align="left">Model</th><th>Test RMSE</th><th>Test MAE</th><th>Test R²</th><th>‖β̂ − β_true‖₂</th></tr>
+<tr>
+  <td><b>OLS</b></td>
+  <td align="center"><img src="https://img.shields.io/badge/1.001-7A7A7A?style=flat-square" alt="1.001"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.792-7A7A7A?style=flat-square" alt="0.792"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.826-7A7A7A?style=flat-square" alt="0.826"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.274-7A7A7A?style=flat-square" alt="0.274"></td>
+</tr>
+<tr>
+  <td><b>Ridge</b> <sub>α = 1.0</sub></td>
+  <td align="center"><img src="https://img.shields.io/badge/1.000-7A7A7A?style=flat-square" alt="1.000"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.792-3B6EA8?style=flat-square" alt="0.792 best"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.826-7A7A7A?style=flat-square" alt="0.826"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.273-3B6EA8?style=flat-square" alt="0.273 best"></td>
+</tr>
+<tr>
+  <td><b>Lasso</b> <sub>α = 0.1</sub></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.992-3B6EA8?style=flat-square" alt="0.992 best"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.797-7A7A7A?style=flat-square" alt="0.797"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.829-3B6EA8?style=flat-square" alt="0.829 best"></td>
+  <td align="center"><img src="https://img.shields.io/badge/0.537-C04040?style=flat-square" alt="0.537 worst"></td>
+</tr>
+</table>
+
+<sub>🔵 best in column · 🔴 notably worse than peers · values from `results/metrics.json`.</sub>
 
 ### 1. Test-set performance across models
 
